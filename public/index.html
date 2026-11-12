@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enterprise AI Sales Assistant</title>
+    <!-- Marked.js for clean Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+        header { background: #1e293b; padding: 12px; text-align: center; font-size: 1rem; font-weight: bold; border-bottom: 1px solid #334155; flex-shrink: 0; }
+        #chat-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 800px; margin: 0 auto; }
+        .message { max-width: 85%; padding: 10px 14px; border-radius: 12px; line-height: 1.5; word-wrap: break-word; font-size: 0.95rem; }
+        .user { background: #3b82f6; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .assistant { background: #334155; color: #f8fafc; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .assistant h3 { font-size: 1rem; margin: 8px 0 4px 0; color: #60a5fa; }
+        .assistant ul, .assistant ol { margin: 5px 0; padding-left: 20px; }
+        .assistant p { margin: 5px 0; }
+        #input-area { display: flex; padding: 10px 15px; background: #1e293b; border-top: 1px solid #334155; flex-shrink: 0; width: 100%; max-width: 800px; margin: 0 auto; }
+        input { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; outline: none; font-size: 1rem; }
+        button { background: #3b82f6; color: white; border: none; padding: 0 16px; margin-left: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
+        button:active { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <header>🚀 Enterprise AI Sales Assistant</header>
+    <div id="chat-box"></div>
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            chatBox.innerHTML += `<div class="message user">${text}</div>`;
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await res.json();
+                
+                // Parse markdown to clean HTML
+                const formattedReply = marked.parse(data.reply);
+                chatBox.innerHTML += `<div class="message assistant">${formattedReply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (err) {
+                chatBox.innerHTML += `<div class="message assistant">Connection Error!</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Sales Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-container { width: 400px; background: #1e293b; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .chat-header { background: #3b82f6; padding: 15px; font-weight: bold; text-align: center; }
+        .chat-box { height: 350px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px 14px; border-radius: 8px; max-width: 80%; font-size: 14px; }
+        .user { background: #3b82f6; align-self: flex-end; }
+        .bot { background: #334155; align-self: flex-start; }
+        .chat-input { display: flex; border-top: 1px solid #334155; padding: 10px; background: #0f172a; }
+        .chat-input input { flex: 1; background: #1e293b; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 6px; outline: none; }
+        .chat-input button { background: #3b82f6; color: #fff; border: none; padding: 10px 16px; margin-left: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">AI Sales Assistant 🚀</div>
+        <div class="chat-box" id="chatBox">
+            <div class="message bot">Salam! Main aapki kya madad kar sakta hoon?</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Yahan message likhein..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">Bhejo</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const text = input.value.trim();
+            if(!text) return;
+
+            chatBox.innerHTML += `<div class="message user">${text}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await res.json();
+                chatBox.innerHTML += `<div class="message bot">${data.reply}</div>`;
+            } catch (err) {
+                chatBox.innerHTML += `<div class="message bot">Connection error!</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
